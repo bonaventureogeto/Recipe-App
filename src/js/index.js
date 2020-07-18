@@ -68,7 +68,6 @@ elements.searchResPages.addEventListener("click", (e) => {
 const controlRecipe = async () => {
   //Get ID from url
   const id = window.location.hash.replace("#", "");
-  console.log(id);
 
   if (id) {
     //Prepare the UI for changes
@@ -94,6 +93,7 @@ const controlRecipe = async () => {
       clearLoader();
       recipeView.renderRecipe(state.recipe, state.likes.isLiked(id));
     } catch (error) {
+      console.log(error);
       alert("Error processing recipe!!");
     }
   }
@@ -106,7 +106,6 @@ const controlRecipe = async () => {
 /**
  *  LIST CONTROLLER
  */
-
 const controlList = () => {
   // Create a new list of there is none yet
   if (!state.list) state.list = new List();
@@ -171,6 +170,20 @@ const controlLike = () => {
   likesView.toggleLikeMenu(state.likes.getNumLikes());
 };
 
+// Restore liked recipes on page load
+window.addEventListener("load", () => {
+  state.likes = new Likes();
+
+  // Restore likes
+  state.likes.readStorage();
+
+  // Toggle like menu button
+  likesView.toggleLikeMenu(state.likes.getNumLikes());
+
+  // Render the existing likes
+  state.likes.likes.forEach((like) => likesView.renderLike(like));
+});
+
 // Handling recipe button clicks
 elements.recipe.addEventListener("click", (e) => {
   if (e.target.matches(".btn-decrease, .btn-decrease *")) {
@@ -184,12 +197,10 @@ elements.recipe.addEventListener("click", (e) => {
     state.recipe.updateServings("inc");
     recipeView.updateServingsIngredients(state.recipe);
   } else if (e.target.matches(".recipe__btn--add, .recipe__btn--add *")) {
-    // Add ingredients t shopping list
+    // Add ingredients the shopping list
     controlList();
   } else if (e.target.matches(".recipe__love, .recipe__love *")) {
     // Like controller
     controlLike();
   }
 });
-
-window.l = new List();
